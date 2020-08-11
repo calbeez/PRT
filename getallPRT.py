@@ -23,7 +23,7 @@ for c in range(1,88):
     print(c, file=sys.stderr)
 
     response = request.urlopen(url)
-    soup = BeautifulSoup(response)
+    soup = BeautifulSoup(response, 'lxml')
     
     prt_indexes = soup.find_all('div',id=re.compile('post-\d{3,4}'))
     for i in prt_indexes:
@@ -42,19 +42,17 @@ for c in range(1,88):
         for t in i.select('br'):
             t.replace_with('\n')
             
-        prt_lists = 'dummy'
+        prt_lists = ''
 
         for c2 in prt_contents.select('p'):
             c3 = c2.get_text(strip=True)
             if time_pattern.search(c3):
                 prt_lists += c2.get_text()
                 
-        if prt_lists == 'dummy':
-            for c2 in prt_contents.select('div'):
-                c3 = c2.get_text(strip=True)
-                if time_pattern.search(c3):
-                    prt_lists += c2.get_text()
-
+        for c2 in prt_contents.select('div'):
+            c3 = c2.get_text(strip=True)
+            if time_pattern.search(c3):
+                prt_lists += c2.get_text()
                     
         for t2 in prt_lists.split("\n"):
             if list_pattern.search(t2):
