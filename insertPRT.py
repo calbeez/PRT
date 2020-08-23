@@ -2,7 +2,6 @@ from urllib import request
 from bs4 import BeautifulSoup
 import re
 import cx_Oracle
-import os
 
 # 変数設定
 res = []
