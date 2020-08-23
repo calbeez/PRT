@@ -85,8 +85,8 @@ for i in prt_indexes:
                    prt_date.group(3), 
                    prt_list.group(1), 
                    prt_list.group(2), 
-                   '"'+prt_list.group(3).strip()+'"',
-                   '"'+prt_list.group(4).strip()+'"')
+                   prt_list.group(3).strip(),
+                   prt_list.group(4).strip())
             rows.append(row)
 
 # onairlistへのinsert
