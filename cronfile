@@ -23,4 +23,5 @@
 # m h  dom mon dow   command
 
 # Power Rock Today
-0 1 * * 0 /home/ubuntu/bin/getradiko.sh BAYFM78 240 0 1>/home/ubuntu/radio/log/PRT.log 2>&1
+0 1 * * 0 /home/ubuntu/bin/getradiko.sh BAYFM78 240 0 1>/home/ubuntu/log/PRT.log 2>&1
+0 10 * * 0 /home/ubuntu/bin/insertPRT.sh 1>> /home/ubuntu/log/insertPRT.log 2>&1

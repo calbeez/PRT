@@ -9,7 +9,7 @@ res = []
 rows = []
 
 # onairlistの最新日付取得
-con=cx_Oracle.connect(user='calbeez',password='.Hondavfr400',dsn='db202008140156_low')
+con=cx_Oracle.connect(user='calbeez',password='<password>',dsn='<database_name>_low')
 cur = con.cursor()
 
 sql ="select max(year) from  calbeez.onairlist"

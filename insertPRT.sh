@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 date=`date '+%Y-%m-%d-%H:%M'`
 
