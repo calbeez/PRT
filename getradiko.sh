@@ -1,11 +1,10 @@
-#!/bin/sh -x
+#!/bin/bash -x
 
 date=`date '+%Y-%m-%d-%H:%M'`
 cachedir=/home/ubuntu/radio/cache/
 mp3dir=/home/ubuntu/radio/mp3/
 playerurl=http://radiko.jp/apps/js/flash/myplayer-release.swf
-playerfile=$cachedir/player.swf
-keyfile=./authkey.png
+authkey_value="bcd151073c03b352e1ef2fd66c32209da9ca0afa"
 tmpfile="./${1}_${date}"
 mp3file="${mp3dir}${1}_${date}.mp3"
 
@@ -25,39 +24,11 @@ fi
 cd $cachedir
 
 #
-# get player
-#
-if [ ! -f $playerfile ]; then
-  /usr/bin/wget -q -O $playerfile $playerurl
-
-  if [ $? -ne 0 ]; then
-    echo "failed get player"
-    exit 1
-  fi
-fi
-
-#
-# get keydata (need swftool)
-#
-if [ ! -f $keyfile ]; then
-  swfextract -b 12 $playerfile -o $keyfile
-
-  if [ ! -f $keyfile ]; then
-    echo "failed get keydata"
-    exit 1
-  fi
-fi
-
-if [ -f auth1_fms ]; then
-  rm -f auth1_fms
-fi
-
-#
 # access auth1_fms
 #
 /usr/bin/wget -q \
      --header="pragma: no-cache" \
-     --header="X-Radiko-App: pc_ts" \
+     --header="X-Radiko-App: pc_html5" \
      --header="X-Radiko-App-Version: 4.0.0" \
      --header="X-Radiko-User: test-stream" \
      --header="X-Radiko-Device: pc" \
@@ -78,7 +49,7 @@ authtoken=`perl -ne 'print $1 if(/x-radiko-authtoken: ([\w-]+)/i)' auth1_fms`
 offset=`perl -ne 'print $1 if(/x-radiko-keyoffset: (\d+)/i)' auth1_fms`
 length=`perl -ne 'print $1 if(/x-radiko-keylength: (\d+)/i)' auth1_fms`
 
-partialkey=`dd if=$keyfile bs=1 skip=${offset} count=${length} 2> /dev/null | base64`
+partialkey=`echo $authkey_value | dd bs=1 skip=${offset} count=${length} 2> /dev/null | base64`
 echo "authtoken: ${authtoken} \noffset: ${offset} length: ${length} \npartialkey: 
 
 $partialkey"
@@ -94,7 +65,7 @@ fi
 #
 /usr/bin/wget -q \
      --header="pragma: no-cache" \
-     --header="X-Radiko-App: pc_ts" \
+     --header="X-Radiko-App: pc_html5" \
      --header="X-Radiko-App-Version: 4.0.0" \
      --header="X-Radiko-User: test-stream" \
      --header="X-Radiko-Device: pc" \
@@ -120,16 +91,32 @@ echo "Sleep ${delaysec} sec."
 sleep $delaysec
 
 #
+# get stream-url
+#
+if [ -f ${station}.xml ]; then
+  rm -f ${station}.xml
+fi
+
+wget -q "http://radiko.jp/v2/station/stream/${station}.xml"
+
+stream_url=`echo "cat /url/item[1]/text()" | xmllint --shell ${station}.xml | tail -2 | head -1`
+url_parts=(`echo ${stream_url} | perl -pe 's!^(.*)://(.*?)/(.*)/(.*?)$/!$1://$2 $3 $4!'`)
+
+rm -f ${station}.xml
+
+
+#
 # rtmpdump
 #
 /usr/bin/rtmpdump -v \
-         -r "rtmpe://f-radiko.smartstream.ne.jp" \
-         --playpath "simul-stream.stream" \
-         --app "${station}/_definst_" \
+         -r ${url_parts[0]} \
+         --app ${url_parts[1]} \
+         --playpath ${url_parts[2]} \
          -W $playerurl \
          -C S:"" -C S:"" -C S:"" -C S:$authtoken \
          --live \
          --stop $DURATION \
+         --timeout 300 \
          -o $tmpfile
 
 /usr/bin/ffmpeg -y -i $tmpfile -acodec libmp3lame -ab 64k $mp3file
