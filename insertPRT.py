@@ -2,6 +2,7 @@ from urllib import request
 from bs4 import BeautifulSoup
 import re
 import cx_Oracle
+import os
 
 # 変数設定
 res = []
@@ -64,12 +65,12 @@ for i in prt_indexes:
     for c2 in prt_contents.select('p'):
         c3 = c2.get_text(strip=True)
         if time_pattern.search(c3):
-            prt_lists += c2.get_text()
+            prt_lists += c2.get_text() + "\n"
                 
     for c2 in prt_contents.select('div'):
         c3 = c2.get_text(strip=True)
         if time_pattern.search(c3):
-            prt_lists += c2.get_text()
+            prt_lists += c2.get_text() + "\n"
                     
     for t2 in prt_lists.split("\n"):
         if list_pattern.search(t2):
