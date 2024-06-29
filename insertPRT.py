@@ -9,20 +9,20 @@ res = []
 rows = []
 
 # onairlistの最新日付取得
-con=cx_Oracle.connect(user='<user_id>',password='<password>',dsn='<database_name>_low')
+con=cx_Oracle.connect(user='calbeez',password='.Hondavfr400',dsn='db202008140156_low')
 cur = con.cursor()
 
-sql ="select max(year) from  calbeez.onairlist"
+sql ="select max(year) from  calbeez.onairlist_all"
 cur.execute(sql)
 res = cur.fetchone()
 maxy = res[0]
 
-sql ="select max(month) from  calbeez.onairlist where year = " +  str(maxy)
+sql ="select max(month) from  calbeez.onairlist_all where year = " +  str(maxy)
 cur.execute(sql)
 res = cur.fetchone()
 maxm = res[0]
 
-sql ="select max(day) from  calbeez.onairlist where year = " +  str(maxy) + " and month = " + str(maxm)
+sql ="select max(day) from  calbeez.onairlist_all where year = " +  str(maxy) + " and month = " + str(maxm)
 cur.execute(sql)
 res = cur.fetchone()
 maxd = res[0]
@@ -93,7 +93,7 @@ for i in prt_indexes:
 # onairlistへのinsert
 if len(rows) != 0:
     try:
-        cur.executemany("insert into calbeez.onairlist(maximum, year, month, day, hour, minute, title, artist) values (:1, :2, :3, :4, :5, :6, :7, :8)", rows)
+        cur.executemany("insert into calbeez.onairlist_all(maximum, year, month, day, hour, minute, title, artist) values (:1, :2, :3, :4, :5, :6, :7, :8)", rows)
     except cx_Oracle.DatabaseError as e:
         error, = e.args
         print(error.message)
