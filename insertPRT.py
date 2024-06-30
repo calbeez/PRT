@@ -93,7 +93,7 @@ for i in prt_indexes:
 # onairlistへのinsert
 if len(rows) != 0:
     try:
-        cur.executemany("insert into calbeez.onairlist_all(maximum, year, month, day, hour, minute, title, artist) values (:1, :2, :3, :4, :5, :6, :7, :8)", rows)
+        cur.executemany("insert into calbeez.onairlist_all(maximum, year, month, day, hour, minutes, title, artist) values (:1, :2, :3, :4, :5, :6, :7, :8)", rows)
     except cx_Oracle.DatabaseError as e:
         error, = e.args
         print(error.message)
